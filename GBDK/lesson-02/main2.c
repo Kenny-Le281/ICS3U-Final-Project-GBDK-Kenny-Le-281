@@ -7,12 +7,11 @@
 #include <gb/gb.h>
 #include <stdio.h>
 
+#include "MetaSprites.c"
 #include "SpaceAliens.c"
 
 int main() {
-    // load spritesheet referenced as #0
-    // load 16 sprites from it
-    // from variable SpaceAlien
+    // load spritesheet reference
     set_sprite_data(0, 16, SpaceAliens);
 
     // load sprites for meta sprite
@@ -23,4 +22,6 @@ int main() {
 
     SHOW_SPRITES;
     DISPLAY_ON;
+
+    return 0;
 }

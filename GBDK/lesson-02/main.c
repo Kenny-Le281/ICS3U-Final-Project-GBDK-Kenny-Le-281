@@ -15,8 +15,8 @@ int main() {
     // from variable SpaceAlien
     set_sprite_data(0, 16, SpaceAliens);
 
-    // from the loaded spritesheet
-    // load sprite index #15 (rememeber we start counting at 0!)
+    // from the loaded sprite sheet
+    // load sprite index #15 (remember we start counting at 0!)
     // into position #0
     set_sprite_tile(0, 15);
 
@@ -32,4 +32,6 @@ int main() {
     move_sprite(2, 64, 64);
 
     SHOW_SPRITES;
+
+    return 0;
 }
