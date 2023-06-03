@@ -97,6 +97,13 @@ screen_t game() {
     const int FIXED_Y_POSITION_OF_SHIP = 144;
     int shipXPosition = 76;
     int shipYPosition = FIXED_Y_POSITION_OF_SHIP;
+    int missiles[5][3] = {
+                            {5, 255, 255},
+                            {6, 255, 255},
+                            {7, 255, 255},
+                            {8, 255, 255},
+                            {9, 255, 255},
+    }; // missile [sprite number, x position, y position]
 
     // load spritesheet reference
     set_sprite_data(0, 16, SpaceAliens);
@@ -106,6 +113,19 @@ screen_t game() {
 
     // move meta sprite on screen
     move_meta_sprite(0, shipXPosition, shipYPosition);
+
+    // load sprites for the 5 missiles
+    // load sprite index #06, missile (rememeber we start counting at 0!)
+    for (int laserCounter = 0; laserCounter < 5; laserCounter++) {
+        set_sprite_tile(missiles[laserCounter][0], 6);
+    }
+
+    // move the missiles off screen
+    for (int laserCounter = 0; laserCounter < 5; laserCounter++) {
+        move_sprite(missiles[laserCounter][0],
+                    missiles[laserCounter][1],
+                    missiles[laserCounter][2]);
+    }
 
     // set background tile sheet 0 to a different tile sheet
     set_bkg_data(0, 43, Background);
@@ -147,19 +167,54 @@ screen_t game() {
         // If A button is pressed
         if (joypadData & J_A) {
             if (aButtonJustPressed == true) {
-                aButtonJustPressed = true;
+                aButtonStillPressed = true;
             } else {
-                aButtonJustPressed = true;
-                // play a sound
-                NR10_REG = 0x16;
-                NR11_REG = 0x82;
-                NR12_REG = 0x69;
-                NR13_REG = 0x59;
-                NR14_REG = 0xC6;
+                // check to see if there are any of the 5 missiles left
+                for (int laserCounter = 0; laserCounter < 5; laserCounter++) {
+                    if (missiles[laserCounter][1] >= 255) {
+                        // fire this laser
+                        missiles[laserCounter][1] = shipXPosition + 4;
+                        missiles[laserCounter][2] = 136;
+                        move_sprite(missiles[laserCounter][0],
+                                    missiles[laserCounter][1],
+                                    missiles[laserCounter][2]);
+
+                        aButtonJustPressed = true;
+                        // play a sound
+                        NR10_REG = 0x16;
+                        NR11_REG = 0x82;
+                        NR12_REG = 0x69;
+                        NR13_REG = 0x59;
+                        NR14_REG = 0xC6;
+
+                        break;
+                    }
+                }
             }
         } else {
             aButtonJustPressed = false;
             aButtonStillPressed = false;
+        }
+
+        // if there are any missiles on the screen, move them up
+        for (int laserCounter = 0; laserCounter < 5; laserCounter++) {
+            if (missiles[laserCounter][1] < 255) {
+                // move up
+                missiles[laserCounter][2]--;
+                move_sprite(missiles[laserCounter][0],
+                            missiles[laserCounter][1],
+                            missiles[laserCounter][2]);
+
+                // check to see if missile of off the top of the screen
+                if (missiles[laserCounter][2] < 0) {
+                    // move off screen again
+                    missiles[laserCounter][1] = 255;
+                    missiles[laserCounter][2] = 255;
+                    move_sprite(missiles[laserCounter][0],
+                                missiles[laserCounter][1],
+                                missiles[laserCounter][2]);
+                }
+            }
         }
 
         // scroll background 0 in the X and -1 in the Y
